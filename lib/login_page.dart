@@ -147,7 +147,6 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: signUp,
                 ),
               ),
-
               Container(
                 height: 15,
                 child: new FlatButton(
