@@ -92,27 +92,35 @@ class _NewTripFormState extends State<NewTripForm> {
                 labelStyle: new TextStyle(color: Colors.black),
               ),
             ),
-//            InkWell(
-//              onTap: () {
-//                _selectedDate(context); // Call Function that has showDatePicker()
-//              },
-//              child: IgnorePointer(
-//                child: new TextFormField(
-////                  validator: (input) {
-////                    if (input.isEmpty) {
-////                      return "Start date is required";
-////                    }
-////                    return null;
-////                  },
-//                  decoration: new InputDecoration(
-//                    labelText: "Start Date",
-//                    labelStyle: new TextStyle(color: Colors.black),
-//                  ),
-//                  onSaved: (String val) {},
-//                ),
-//              ),
-//            ),
-            Text('Start Date: ${_date.toString().substring(0, 10)}'),
+            Row(children: [
+              Container(
+                child: Text(
+                  'Start Date: ',
+                  style: new TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Container(
+                child: Text(
+                  '${new DateFormat.M().format(_date)}-${new DateFormat.d().format(_date)}-${new DateFormat.y().format(_date)}',
+                  style: new TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Expanded(child: SizedBox()),
+              Container(
+                child: RaisedButton(
+                  onPressed: () {
+                    _selectedDate(context);
+                  },
+                  child: Text('Select Date'),
+                ),
+              )
+            ]),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: RaisedButton(
