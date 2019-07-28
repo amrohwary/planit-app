@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:planit/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../create_page.dart';
+
 /*class CustomTabController extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,9 @@ class _HomeState extends State<Home> {
                       height: 150,
                     ),
                   ),
-                  Tab(icon: Icon(Icons.edit)),
+                  Tab(icon: Icon(Icons.edit,
+                  size: 30,
+                  color: Color(0xFF074A77),)),
                 ],
               ),
           ),
@@ -59,11 +63,7 @@ class _HomeState extends State<Home> {
             // Profile Page
             Container(
               color: Colors.white,
-              child: Column(
-                children: <Widget>[
-                  new NameAndDate(user: widget.user),
-                ],
-              ),
+              child: new Collections(user: widget.user),
             ),
 
 
@@ -71,7 +71,8 @@ class _HomeState extends State<Home> {
             // Create Page
             Container(
                 color: Colors.white,
-                child: Icon(Icons.edit)),
+                child: CreatePage(),
+            )
           ],
         ),
       ),

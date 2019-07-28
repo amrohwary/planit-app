@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'common/appbar.dart';
-
+import 'login_page.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -16,13 +16,17 @@ class _SignUpState extends State<SignUp> {
     if(_formKey.currentState.validate()) {
       _formKey.currentState.save();
       try {
-        FirebaseUser user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password);
-        //user.sendEmailVerification();
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Home(user: user)));
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password);
+
+        Navigator.of(context).pop();
       } catch (e) {
         print(e.message);
       }
     }
+  }
+
+  void goToSignIn() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
   @override
@@ -33,7 +37,8 @@ class _SignUpState extends State<SignUp> {
         padding: new EdgeInsets.symmetric(horizontal: 30),
         child: new Form(
           key: _formKey,
-          child: new Column(
+          child: new ListView(
+            physics: ClampingScrollPhysics(),
             children: <Widget>[
               new SizedBox(height: 125,),
               Text("Welcome to Planit!",
@@ -120,6 +125,14 @@ class _SignUpState extends State<SignUp> {
                   style: new TextStyle(color: Colors.white,),
                 ),
                 onPressed: signUp,
+              ),
+              new FlatButton(
+                // color: Color(0xFF01B2AA),
+                child: new Text(
+                  "Already have an account? Sign in",
+                  style: new TextStyle(color: Colors.white,),
+                ),
+                onPressed: goToSignIn,
               ),
             ],
           ),

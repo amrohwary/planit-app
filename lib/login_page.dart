@@ -14,15 +14,67 @@ class _LoginPageState extends State<LoginPage> {
   String _email, _password;
 
   void signIn() async {
-    if(_formKey.currentState.validate()){
+    if(_formKey.currentState.validate()) {
       _formKey.currentState.save();
       try{
         FirebaseUser user = await FirebaseAuth.instance.signInWithEmailAndPassword(email: _email, password: _password);
         Navigator.push(context, MaterialPageRoute(builder: (context) => Home(user: user)));
-      }catch(e){
-        print(e.message);
+      }catch(e) {
+        showDialog(context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: new Text("Invalid Username or Password."),
+              actions: <Widget>[
+                new FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      },
+                    child: new Text("Close")),
+              ],
+            );
+          }
+        );
       }
     }
+  }
+
+  void resetPassword() async {
+      _formKey.currentState.save();
+      if (_email != null) {
+        try{
+          await FirebaseAuth.instance.sendPasswordResetEmail(email: _email);
+
+          showDialog(context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: new Text("An email has been sent to " + _email + " with instructions on how to reset your password."),
+                  actions: <Widget>[
+                    new FlatButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: new Text("Close")),
+                  ],
+                );
+              }
+          );
+        } catch(e) {
+          showDialog(context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: new Text("The provided email address is not associated with a Planit account."),
+                  actions: <Widget>[
+                    new FlatButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: new Text("Close")),
+                  ],
+                );
+              }
+          );
+        }
+      }
   }
 
   void signUp() {
@@ -38,7 +90,8 @@ class _LoginPageState extends State<LoginPage> {
         padding: new EdgeInsets.symmetric(horizontal: 30),
         child: new Form(
           key: _formKey,
-          child: new Column(
+          child: new ListView(
+            physics: ClampingScrollPhysics(),
             children: <Widget>[
               new SizedBox(height: 120,),
               new Image.asset("assets/images/solidBackgroundLogo.JPG",
@@ -47,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
               new TextFormField(
                 validator: (input) {
                   if(input.isEmpty){
-                    return "Provide an email";
+                    return "Email is required";
                   }
                   return null;
                 },
@@ -62,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
               new TextFormField(
                 validator: (input) {
                   if(input.length < 6){
-                    return 'Longer password please';
+                    return 'Password must be 6 characters';
                   }
                   return null;
                 },
@@ -84,13 +137,26 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   onPressed: signIn,
               ),
-              new RaisedButton(
-                color: Color(0xFF01B2AA),
-                child: new Text(
-                  "Create Account",
-                  style: new TextStyle(color: Colors.white,),
+              Container(
+                height: 35,
+                child: new FlatButton(
+                  child: new Text(
+                    "Create a new Account",
+                    style: new TextStyle(color: Colors.white,),
+                  ),
+                  onPressed: signUp,
                 ),
-                onPressed: signUp,
+              ),
+
+              Container(
+                height: 15,
+                child: new FlatButton(
+                  child: new Text(
+                    "Reset Password",
+                    style: new TextStyle(color: Colors.white,),
+                  ),
+                  onPressed: resetPassword,
+                ),
               ),
             ],
           ),
