@@ -22,21 +22,6 @@ class _NameAndDateState extends State<NameAndDate> {
     return day + ", " + month + ", " + year;
   }
 
-  String _getWelcome() {
-    var hour = new DateTime.now().hour;
-    var welcome;
-    if (hour > 5 && hour < 12) {
-      welcome = "Good Morning, ";
-    }
-    else if (hour < 5) {
-      welcome = "Good Afternoon, ";
-    }
-    else {
-      welcome = "Good Evening, ";
-    }
-    return welcome + "Amro!";//+ widget.user.email;
-  }
-
   @override
   Widget build(BuildContext context) {
     return new Column(
@@ -45,12 +30,7 @@ class _NameAndDateState extends State<NameAndDate> {
           margin: const EdgeInsets.only(left: 12, top: 8),
           child: Align(
             alignment: Alignment.topLeft,
-            child: Text(_getWelcome(),
-              style: new TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: WelcomeMessage(uid: widget.user.uid,),
           ),
         ),
 
@@ -71,7 +51,10 @@ class _NameAndDateState extends State<NameAndDate> {
   }
 }
 
+
+
 class Collections extends StatefulWidget {
+
   const Collections({Key key, this.user}) : super(key: key);
   final FirebaseUser user;
 
@@ -80,19 +63,81 @@ class Collections extends StatefulWidget {
 }
 
 class _CollectionsState extends State<Collections> {
+
+  Widget _buildCollections(BuildContext context, List<DocumentSnapshot> snapshots) {
+    return ListView.builder(
+        itemCount: snapshots.length,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          return new StreamBuilder(
+            stream: snapshots[index].reference.collection("trips").snapshots(),
+            builder: (context, collectionSnapshot) {
+              if (!collectionSnapshot.hasData) {
+                return Center(
+                    child: Padding(padding: const EdgeInsets.only(right: 40, left: 20,), child: LinearProgressIndicator(),)
+                );
+              }
+              return _buildCollection(context, collectionSnapshot.data.documents, snapshots[index]["title"]);
+            },
+          );
+        });
+  }
+
+  Widget _buildCollection(BuildContext context, List<DocumentSnapshot> snapshots, String title) {
+
+    return Column(
+      children: <Widget>[
+        Container(
+          margin: const EdgeInsets.only(left: 14, top: 15, bottom: 5),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(title,
+              style: TextStyle(
+                fontSize: 18,
+                color: Color(0xFF074A77),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 500,
+          height: 128,
+          child: ListView.builder(
+            itemCount: snapshots.length,
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            physics: BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              return TripCard();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 723,
       child: ListView(
         scrollDirection: Axis.vertical,
+        // For each collection in users.uid.collections.
         children: <Widget>[
           new NameAndDate(user: widget.user),
-          new Collection(),
-          new Collection(),
-          new Collection(),
-          new Collection(),
-          new Collection(),
+          new StreamBuilder(
+            stream: Firestore.instance.collection("users").document(widget.user.uid).collection("collections").snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Center(
+                  child: Padding(padding: const EdgeInsets.only(right: 40, left: 20,),child: LinearProgressIndicator(),)
+                );
+              }
+              return _buildCollections(context, snapshot.data.documents);
+            },
+          ),
         ],
       ),
     );
@@ -100,6 +145,8 @@ class _CollectionsState extends State<Collections> {
 }
 
 class Collection extends StatefulWidget {
+  const Collection({Key key, this.title}) : super(key: key);
+  final String title;
   @override
   _CollectionState createState() => _CollectionState();
 }
@@ -113,7 +160,7 @@ class _CollectionState extends State<Collection> {
           margin: const EdgeInsets.only(left: 14, top: 15, bottom: 5),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: Text("Planned Trips",
+            child: Text(widget.title,
             style: TextStyle(
               fontSize: 18,
               color: Color(0xFF074A77),
@@ -164,9 +211,10 @@ class _TripCardState extends State<TripCard> {
             child: Stack(
               children: <Widget>[
                 Container(
+                  color: Colors.blue,
                     height: 120,
                     width: 200,
-                    child: new Image.asset("assets/images/newyork.jpg", fit: BoxFit.cover,),
+                    //child: new Image.asset("assets/images/newyork.jpg", fit: BoxFit.cover,),
                 ),
                 Positioned(
                     width: 200,
@@ -191,7 +239,7 @@ class _TripCardState extends State<TripCard> {
                       Column(
                         children: <Widget>[
                           Text("New York, NY", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
-                          Text("Feb 2019", style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white, fontSize: 12)),
+                          Text("Feb 12 - 14, 2019", style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ],
@@ -205,6 +253,47 @@ class _TripCardState extends State<TripCard> {
     );;
   }
 }
+
+class WelcomeMessage extends StatelessWidget {
+  final String uid;
+  const WelcomeMessage({Key key, this.uid}) : super(key: key);
+
+  String _getWelcome() {
+    var hour = new DateTime.now().hour;
+    var welcome;
+    if (hour > 5 && hour < 12) {
+      welcome = "Good Morning, ";
+    }
+    else if (hour < 5) {
+      welcome = "Good Afternoon, ";
+    }
+    else {
+      welcome = "Good Evening, ";
+    }
+    return welcome;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new StreamBuilder(
+        stream: Firestore.instance.collection('users').document(uid).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return new Text(_getWelcome(), style: new TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+            ),);
+          }
+          var userDocument = snapshot.data;
+          return new Text(_getWelcome() + userDocument["firstName"] + "!", style: new TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),);
+        }
+    );
+  }
+}
+
 
 
 

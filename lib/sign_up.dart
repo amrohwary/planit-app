@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'common/appbar.dart';
-import 'login_page.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -16,17 +17,51 @@ class _SignUpState extends State<SignUp> {
     if(_formKey.currentState.validate()) {
       _formKey.currentState.save();
       try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password);
-
-        Navigator.of(context).pop();
+        FirebaseUser user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password).then((data) {
+          this.createUser(data);
+          Navigator.push(context, MaterialPageRoute(builder: (context) => Home(user: data)));
+        }).catchError((e) {print(e.message);});
       } catch (e) {
-        print(e.message);
+        showDialog(context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: new Text(e.message),
+                actions: <Widget>[
+                  new FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: new Text("Close")),
+                ],
+              );
+            }
+        );
       }
     }
   }
 
+  /*
+  Add users first and last name to Firestore database.
+   */
+  void createUser(FirebaseUser user) {
+    Map<String, dynamic> userData = new Map<String, dynamic>();
+    userData["firstName"] = _firstName;
+    userData["lastName"] = _lastName;
+
+    DocumentReference userFile = Firestore.instance.collection("users").document(user.uid);
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.set(userFile, userData);
+    }).catchError((e) {
+      print(e.message);
+    });
+
+    userFile.get().then((data) {
+      print("data: " + data.toString());
+    });
+  }
+
   void goToSignIn() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    Navigator.of(context).pop();
   }
 
   @override
@@ -40,21 +75,21 @@ class _SignUpState extends State<SignUp> {
           child: new ListView(
             physics: ClampingScrollPhysics(),
             children: <Widget>[
-              new SizedBox(height: 125,),
+              new SizedBox(height: 70,),
               Text("Welcome to Planit!",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 35,
                     color: Colors.white,)
               ),
-              Text("Get started in Seconds",
+              Text("Create an Account!",
                   style: TextStyle(
                     fontWeight: FontWeight.normal,
                     fontSize: 20,
                     color: Colors.white,)),
               new SizedBox(height: 30,),
-              new Image.asset("assets/images/solidLogoNoName.png",
-                height: 150,),
+              /*new Image.asset("assets/images/solidLogoNoName.png",
+                height: 150,),*/
               new SizedBox(height: 30,),
               new TextFormField(
                 validator: (input) {
