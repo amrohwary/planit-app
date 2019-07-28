@@ -1,27 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:planit/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import '../create_page.dart';
-
-/*class CustomTabController extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          flexibleSpace: SafeArea(
-              child: getTabBar()
-          ),
-        ),
-        body: getTabBarPages(),
-      ),
-    );
-  }
-}*/
 
 class Home extends StatefulWidget {
   const Home({Key key, this.user}) : super(key: key);
@@ -46,7 +26,7 @@ class _HomeState extends State<Home> {
                 labelColor: Colors.black,
                 tabs: [
                   Tab(
-                    child: new Image.asset("assets/images/logoTransparent.png",
+                    child: Image.asset("assets/images/logoTransparent.png",
                       height: 150,
                     ),
                   ),
@@ -59,7 +39,6 @@ class _HomeState extends State<Home> {
         ),
         body: TabBarView(
           children: [
-
             // Profile Page
             Container(
               color: Colors.white,

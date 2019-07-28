@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void signUp() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => SignUp()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignUp()));
   }
 
 
@@ -94,12 +94,14 @@ class _LoginPageState extends State<LoginPage> {
             physics: ClampingScrollPhysics(),
             children: <Widget>[
               new SizedBox(height: 120,),
-              new Image.asset("assets/images/solidBackgroundLogo.JPG",
-              height: 250,),
+//              Container(
+//                child: Image.asset("assets/images/solidBackgroundLogo.JPG",
+//                height: 250,),
+//              ),
               new SizedBox(height: 70,),
               new TextFormField(
                 validator: (input) {
-                  if(input.isEmpty){
+                  if(input.isEmpty) {
                     return "Email is required";
                   }
                   return null;
