@@ -17,6 +17,7 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
+  flutter_cupertino_date_picker: ^1.0.8
   flutter:
     sdk: flutter
   intl:

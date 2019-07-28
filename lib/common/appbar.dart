@@ -38,12 +38,12 @@ class _HomeState extends State<Home> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xff074A77),
           elevation: 0,
           flexibleSpace: SafeArea(
               child: TabBar(
-                indicatorColor: Colors.black,
-                labelColor: Colors.black,
+                indicatorColor: Colors.white,
+                labelColor: Colors.white,
                 tabs: [
                   Tab(
                     child: new Image.asset("assets/images/logoTransparent.png",
@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
                   ),
                   Tab(icon: Icon(Icons.edit,
                   size: 30,
-                  color: Color(0xFF074A77),)),
+                  color: Colors.white,)),
                 ],
               ),
           ),

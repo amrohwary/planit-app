@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:intl/intl.dart';
+import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 
 class CreatePage extends StatefulWidget {
   @override
@@ -52,6 +55,22 @@ class NewTripForm extends StatefulWidget {
 class _NewTripFormState extends State<NewTripForm> {
   final _formKey = GlobalKey<FormState>();
 
+  DateTime _date = new DateTime.now();
+
+  Future<Null> _selectedDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: _date,
+        firstDate: new DateTime(2019),
+        lastDate: new DateTime(2100));
+    if (picked != null && picked != _date) {
+      print('Date selected: ${_date.toString()}');
+      setState(() {
+        _date = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -73,18 +92,27 @@ class _NewTripFormState extends State<NewTripForm> {
                 labelStyle: new TextStyle(color: Colors.black),
               ),
             ),
-            TextFormField(
-              validator: (input) {
-                if (input.isEmpty) {
-                  return "Start date is required";
-                }
-                return null;
-              },
-              decoration: new InputDecoration(
-                labelText: "Start Date",
-                labelStyle: new TextStyle(color: Colors.black),
-              ),
-            ),
+//            InkWell(
+//              onTap: () {
+//                _selectedDate(context); // Call Function that has showDatePicker()
+//              },
+//              child: IgnorePointer(
+//                child: new TextFormField(
+////                  validator: (input) {
+////                    if (input.isEmpty) {
+////                      return "Start date is required";
+////                    }
+////                    return null;
+////                  },
+//                  decoration: new InputDecoration(
+//                    labelText: "Start Date",
+//                    labelStyle: new TextStyle(color: Colors.black),
+//                  ),
+//                  onSaved: (String val) {},
+//                ),
+//              ),
+//            ),
+            Text('Start Date: ${_date.toString().substring(0, 10)}'),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: RaisedButton(
@@ -93,8 +121,8 @@ class _NewTripFormState extends State<NewTripForm> {
                   // otherwise.
                   if (_formKey.currentState.validate()) {
                     // If the form is valid, display a Snackbar.
-                    Scaffold.of(context)
-                        .showSnackBar(SnackBar(content: Text('Processing Data')));
+                    Scaffold.of(context).showSnackBar(
+                        SnackBar(content: Text('Processing Data')));
                   }
                 },
                 child: Text('Submit'),
