@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:planit/profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class CustomTabController extends StatelessWidget {
+import '../create_page.dart';
+
+/*class CustomTabController extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -17,35 +21,61 @@ class CustomTabController extends StatelessWidget {
       ),
     );
   }
+}*/
+
+class Home extends StatefulWidget {
+  const Home({Key key, this.user}) : super(key: key);
+  final FirebaseUser user;
+
+  @override
+  _HomeState createState() => _HomeState();
 }
 
+class _HomeState extends State<Home> {
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          flexibleSpace: SafeArea(
+              child: TabBar(
+                indicatorColor: Colors.black,
+                labelColor: Colors.black,
+                tabs: [
+                  Tab(
+                    child: new Image.asset("assets/images/logoTransparent.png",
+                      height: 150,
+                    ),
+                  ),
+                  Tab(icon: Icon(Icons.edit,
+                  size: 30,
+                  color: Color(0xFF074A77),)),
+                ],
+              ),
+          ),
+        ),
+        body: TabBarView(
+          children: [
 
-Widget getTabBar() {
-  return TabBar(
-    indicatorColor: Colors.black,
-    labelColor: Colors.black,
-    tabs: [
-      Tab(icon: Icon(Icons.edit)),
-      Tab(icon: Icon(Icons.account_circle)),
-      Tab(icon: Icon(Icons.public)),
-    ],
-  );
-}
+            // Profile Page
+            Container(
+              color: Colors.white,
+              child: new Collections(user: widget.user),
+            ),
 
-Widget getTabBarPages() {
-  return TabBarView(
-    children: [
-      Container(
-          color: Colors.white,
-          child: Icon(Icons.edit)),
-      Container(
-          color: Colors.white,
-          child: Icon(Icons.account_circle)
+
+
+            // Create Page
+            Container(
+                color: Colors.white,
+                child: CreatePage(),
+            )
+          ],
+        ),
       ),
-      Container(
-          color: Colors.white,
-          child: Icon(Icons.public)),
-    ],
-  );
+    );
+  }
 }
-
