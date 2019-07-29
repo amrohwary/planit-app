@@ -74,83 +74,71 @@ class _NewTripFormState extends State<NewTripForm> {
   @override
   Widget build(BuildContext context) {
     return Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-          TextFormField(
-          validator: (input) {
-        if (input.isEmpty) {
-        return "Trip name is required";
-        }
-        return null;
-        },
-          decoration: new InputDecoration(
-            labelText: "Trip Name",
-            labelStyle: new TextStyle(color: Colors.black),
-          ),
-        ),
-        Row(children: [
-          Container(
-            child: Text(
-              'Start Date: ',
-              style: new TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          Container(
-            child: Text(
-              '${new DateFormat.M().format(_date)}-${new DateFormat.d().format(
-                  _date)}-${new DateFormat.y().format(_date)}',
-              style: new TextStyle(
-                fontSize: 15,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          Expanded(child: SizedBox()),
-          Container(
-            child: RaisedButton(
-              onPressed: () {
-                _selectedDate(context);
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            TextFormField(
+              validator: (input) {
+                if (input.isEmpty) {
+                  return "Trip name is required";
+                }
+                return null;
               },
-              child: Text('Select Date'),
+              decoration: new InputDecoration(
+                labelText: "Trip Name",
+                labelStyle: new TextStyle(color: Colors.black),
+              ),
             ),
-          )
-        ]),
-//            Column(
-//                mainAxisAlignment: MainAxisAlignment.center,
-//                crossAxisAlignment: CrossAxisAlignment.center,
-//        RaisedButton(
-//          onPressed: () {
-//
-//          },
-//        )
-//        child: Text('Add a Day'),
-    ),
-    ),
-    Padding(
-    padding: const EdgeInsets.symmetric(vertical: 16.0),
-    child: RaisedButton(
-    onPressed: () {
-    // Validate returns true if the form is valid, or false
-    // otherwise.
-    if (_formKey.currentState.validate()) {
-    // If the form is valid, display a Snackbar.
-    Scaffold.of(context).showSnackBar(
-    SnackBar(content: Text('Processing Data')));
-    }
-    },
-    child: Text('Submit'),
-    ),
-    ),
-    ],
-    ),
-    ),
+            Row(children: [
+              Container(
+                child: Text(
+                  'Start Date: ',
+                  style: new TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Container(
+                child: Text(
+                  '${new DateFormat.M().format(_date)}-${new DateFormat.d().format(_date)}-${new DateFormat.y().format(_date)}',
+                  style: new TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Expanded(child: SizedBox()),
+              Container(
+                child: RaisedButton(
+                  onPressed: () {
+                    _selectedDate(context);
+                  },
+                  child: Text('Select Date'),
+                ),
+              )
+            ]),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: RaisedButton(
+                onPressed: () {
+                  // Validate returns true if the form is valid, or false
+                  // otherwise.
+                  if (_formKey.currentState.validate()) {
+                    // If the form is valid, display a Snackbar.
+                    Scaffold.of(context).showSnackBar(
+                        SnackBar(content: Text('Processing Data')));
+                  }
+                },
+                child: Text('Submit'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
