@@ -122,35 +122,24 @@ class _NewTripFormState extends State<NewTripForm> {
             ),
           )
         ]),
-//            Column(
-//                mainAxisAlignment: MainAxisAlignment.center,
-//                crossAxisAlignment: CrossAxisAlignment.center,
-//        RaisedButton(
-//          onPressed: () {
-//
-//          },
-//        )
-//        child: Text('Add a Day'),
-    ),
-    ),
-    Padding(
-    padding: const EdgeInsets.symmetric(vertical: 16.0),
-    child: RaisedButton(
-    onPressed: () {
-    // Validate returns true if the form is valid, or false
-    // otherwise.
-    if (_formKey.currentState.validate()) {
-    // If the form is valid, display a Snackbar.
-    Scaffold.of(context).showSnackBar(
-    SnackBar(content: Text('Processing Data')));
-    }
-    },
-    child: Text('Submit'),
-    ),
-    ),
-    ],
-    ),
-    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: RaisedButton(
+                    onPressed: () {
+                      // Validate returns true if the form is valid, or false
+                      // otherwise.
+                      if (_formKey.currentState.validate()) {
+                        // If the form is valid, display a Snackbar.
+                        Scaffold.of(context).showSnackBar(
+                            SnackBar(content: Text('Processing Data')));
+                      }
+                    },
+                    child: Text('Submit'),
+                  ),
+                ),
+              ],
+          ),
+        ),
     );
   }
 }
