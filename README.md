@@ -1,6 +1,6 @@
 # Planit
 
-Plan trips in an easier, more efficient, way straight from your phone!
+Plan trips in an easy, efficient, and organized way. Planning trips should never be a hassle!
 
 ## Getting Started
 
