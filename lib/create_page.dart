@@ -7,6 +7,8 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'common/appbar.dart';
 import 'package:uuid/uuid.dart';
+import 'place_view.dart';
+
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: googleMapsApiKey);
 var uuid = new Uuid();
 
@@ -39,7 +41,9 @@ class _CreatePageState extends State<CreatePage> {
           ),
         ),
         Container(
-          margin: const EdgeInsets.only(left: 3,),
+          margin: const EdgeInsets.only(
+            left: 3,
+          ),
           height: 40,
           child: PlacesAutocompleteField(
             mode: Mode.overlay,
@@ -83,12 +87,14 @@ class _NewTripFormState extends State<NewTripForm> {
             child: FlatButton(
               color: Color(0xFF074A77),
               onPressed: () {
-                setState( () {
+                setState(() {
                   dateEntries.add(new DateEntry());
                 });
               },
-              child: Text("Add a Day!",
-                style: TextStyle(color: Colors.white),),
+              child: Text(
+                "Add a Day!",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           );
         }
@@ -121,9 +127,11 @@ class _NewTripFormState extends State<NewTripForm> {
 
 class DateEntry extends StatefulWidget {
   String id = uuid.v1();
+
   String get uniqueId {
     return this.id;
   }
+
   @override
   _DateEntryState createState() => _DateEntryState();
 }
@@ -133,20 +141,22 @@ class _DateEntryState extends State<DateEntry> {
   String date = "Select Date";
 
   void _showDatePicker() {
-    showModalBottomSheet(context: context, builder: (BuildContext builder) {
-      return Container(
-        height: MediaQuery.of(context).copyWith().size.height / 3,
-        child: CupertinoDatePicker(
-          onDateTimeChanged: (DateTime newDate) {
-            setState(() {
-              date = DateFormat.yMMMd().format(newDate).toString();
-            });
-          },
-          initialDateTime: DateTime.now(),
-          mode: CupertinoDatePickerMode.date,
-        ),
-      );
-    });
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext builder) {
+          return Container(
+            height: MediaQuery.of(context).copyWith().size.height / 3,
+            child: CupertinoDatePicker(
+              onDateTimeChanged: (DateTime newDate) {
+                setState(() {
+                  date = DateFormat.yMMMd().format(newDate).toString();
+                });
+              },
+              initialDateTime: DateTime.now(),
+              mode: CupertinoDatePickerMode.date,
+            ),
+          );
+        });
   }
 
   void _googlePlaceSearch() async {
@@ -155,22 +165,22 @@ class _DateEntryState extends State<DateEntry> {
         apiKey: googleMapsApiKey,
         mode: Mode.fullscreen,
         language: "en-US",
-        components: [new Component(Component.country, "US")]
-    );
+        components: [new Component(Component.country, "US")]);
     addNewPlace(p, homeScaffoldKey.currentState);
   }
 
   Future<Null> addNewPlace(Prediction p, ScaffoldState scaffold) async {
     if (p != null) {
-      PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+      PlacesDetailsResponse detail =
+          await _places.getDetailsByPlaceId(p.placeId);
       if (detail.result != null) {
         print(detail.result.formattedAddress);
         setState(() {
-          places.add(createPlaceCard(detail.result));
+          places.add(createPlaceCard(detail.result, context));
         });
-        scaffold.showSnackBar(
-            new SnackBar(content: new Text("${p.description} was successfully added to your trip."))
-        );
+        scaffold.showSnackBar(new SnackBar(
+            content: new Text(
+                "${p.description} was successfully added to your trip.")));
       }
     }
   }
@@ -226,7 +236,10 @@ class _DateEntryState extends State<DateEntry> {
                   return Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: IconButton(
-                      icon: Icon(Icons.add_circle_outline, size: 30,),
+                      icon: Icon(
+                        Icons.add_circle_outline,
+                        size: 30,
+                      ),
                       onPressed: _googlePlaceSearch,
                       color: Colors.black,
                     ),
@@ -242,63 +255,72 @@ class _DateEntryState extends State<DateEntry> {
   }
 }
 
-Widget createPlaceCard(PlaceDetails placeDetails) {
+Widget createPlaceCard(PlaceDetails placeDetails, BuildContext context) {
   var name = placeDetails.name;
-  var location = placeDetails.addressComponents.elementAt(0).shortName;
-  print(location);
+  //var location = placeDetails.addressComponents.elementAt(0).shortName;
 
-  return Padding(
-    padding: const EdgeInsets.only(left: 15, top: 6, bottom: 6),
-    child: Column(
-      children: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.all(
-            Radius.circular(15),
-          ),
-          child: Stack(
+  return InkWell(
+    onTap: () {
+      return Navigator.push(context, MaterialPageRoute(builder: (context) => PlaceView(placeDetails: placeDetails,)));
+    },
+    child: Container(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 15, top: 6, bottom: 6),
+          child: Column(
             children: <Widget>[
-              new GestureDetector(
-                child: Container(
-                  height: 100,
-                  width: 180,
-                  child: Image.asset("assets/images/newyork.jpg", fit: BoxFit.cover)
+              ClipRRect(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(15),
                 ),
-                onForcePressPeak: (details) {print("dfkd");},
-              ),
-              Positioned(
-                  height: 100,
-                  width: 180,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.center,
-                            colors: [Colors.black, Colors.black.withOpacity(0)]
-                        ),
-                     ),
-                  ),
-              ),
-              Positioned(
-                left:10,
-                bottom: 10,
-                right: 10,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Stack(
                   children: <Widget>[
-                    Column(
-                      children: <Widget>[
-                        Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
-                        Text("Manhattan, NY", style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white, fontSize: 12)),
-                      ],
+                    Container(
+                        height: 100,
+                        width: 180,
+                        child: Image.asset("assets/images/newyork.jpg",
+                            fit: BoxFit.cover)),
+                    Positioned(
+                      height: 100,
+                      width: 180,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.center,
+                              colors: [Colors.black, Colors.black.withOpacity(0)]),
+                        ),
+                      ),
                     ),
+                    Positioned(
+                      left: 10,
+                      bottom: 10,
+                      right: 10,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Column(
+                            children: <Widget>[
+                              Text(name,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 14)),
+                              Text("Manhattan, NY",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.white,
+                                      fontSize: 12)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
-      ],
     ),
   );
 }
-
