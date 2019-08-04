@@ -6,7 +6,6 @@ final homeScaffoldKey = new GlobalKey<ScaffoldState>();
 class Home extends StatefulWidget {
   const Home({Key key, this.user}) : super(key: key);
   final FirebaseUser user;
-
   @override
   _HomeState createState() => _HomeState();
 }
@@ -48,7 +47,7 @@ class _HomeState extends State<Home> {
             // Create Page
             Container(
                 color: Colors.white,
-                child: CreatePage(),
+                child: CreatePage(user: widget.user),
             )
           ],
         ),

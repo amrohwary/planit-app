@@ -20,8 +20,11 @@ class _SignUpState extends State<SignUp> {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password).then((data) {
           this.createUser(data);
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(user: data)));
-        }).catchError((e) {print(e.message);});
+        }).catchError((e) {
+          print(e.message);
+        });
       } catch (e) {
+        print(e.message);
         showDialog(context: context,
             builder: (BuildContext context) {
               return AlertDialog(
@@ -52,7 +55,7 @@ class _SignUpState extends State<SignUp> {
     Firestore.instance.runTransaction((transaction) async {
       await transaction.set(userFile, userData);
     }).catchError((e) {
-      print(e.message);
+      print(e);
     });
 
     userFile.get().then((data) {

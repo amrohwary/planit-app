@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 //TOP PART
 class NameAndDate extends StatefulWidget {
@@ -213,7 +212,11 @@ class _CollectionsState extends State<Collections> {
                     fit: BoxFit.cover,
                     fadeInDuration: Duration(milliseconds: 500),
                     fadeInCurve: Curves.easeIn,
-                    placeholder: (BuildContext context, String str) =>  Center(child: CircularProgressIndicator()),
+                    placeholder: (BuildContext context, String str) =>  Center(
+                        child: CircularProgressIndicator(
+                          backgroundColor: Color(0xFF074A77),
+                          valueColor: new AlwaysStoppedAnimation<Color>(Color(0xFF01B2AA)),
+                    )),
                   ),
                 ),
                 Positioned(
