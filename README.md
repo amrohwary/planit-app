@@ -6,7 +6,7 @@ Plan trips in an easy, efficient, and organized way. Planning trips should never
 
 <p align="center">
   <img src="screenshots/authenticationScreenshot.png">
-  <img src="screenshots/profileScreenshot.png">
+  <img src="screenshots/planitScreenshotsGithub.png">
 </p>
 
 
