@@ -24,7 +24,9 @@ dependencies:
   cached_network_image:
   flutter_datetime_picker:
   google_maps_flutter:
-
+  flutter_google_places:
+  location:
+  flip_card:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
