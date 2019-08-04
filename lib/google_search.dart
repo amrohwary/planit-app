@@ -4,8 +4,9 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as LocationManager;
+import 'api_keys.dart';
 
-const kGoogleApiKey = "TOUR_API_KEY";
+const kGoogleApiKey = googleMapsApiKey;
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 class Search extends StatefulWidget {

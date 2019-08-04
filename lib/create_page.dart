@@ -10,6 +10,8 @@ import 'package:uuid/uuid.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'place_view.dart';
+
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: googleMapsApiKey);
 var uuid = new Uuid();
 
@@ -84,7 +86,9 @@ class _CreatePageState extends State<CreatePage> {
           ),
         ),
         Container(
-          margin: const EdgeInsets.only(left: 3,),
+          margin: const EdgeInsets.only(
+            left: 3,
+          ),
           height: 40,
           child: PlacesAutocompleteField(
             types: ["(regions)",],
@@ -173,7 +177,7 @@ class _NewTripFormState extends State<NewTripForm> {
               shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
               color: Color(0xFF01B2AA),
               onPressed: () {
-                setState( () {
+                setState(() {
                   dateEntries.add(new DateEntry());
                 });
               },
@@ -216,9 +220,11 @@ class _NewTripFormState extends State<NewTripForm> {
 
 class DateEntry extends StatefulWidget {
   String id = uuid.v1();
+
   String get uniqueId {
     return this.id;
   }
+
   @override
   _DateEntryState createState() => _DateEntryState();
 }
@@ -228,20 +234,22 @@ class _DateEntryState extends State<DateEntry> {
   String date = "Select Date";
 
   void _showDatePicker() {
-    showModalBottomSheet(context: context, builder: (BuildContext builder) {
-      return Container(
-        height: MediaQuery.of(context).copyWith().size.height / 3,
-        child: CupertinoDatePicker(
-          onDateTimeChanged: (DateTime newDate) {
-            setState(() {
-              date = DateFormat.yMMMd().format(newDate).toString();
-            });
-          },
-          initialDateTime: DateTime.now(),
-          mode: CupertinoDatePickerMode.date,
-        ),
-      );
-    });
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext builder) {
+          return Container(
+            height: MediaQuery.of(context).copyWith().size.height / 3,
+            child: CupertinoDatePicker(
+              onDateTimeChanged: (DateTime newDate) {
+                setState(() {
+                  date = DateFormat.yMMMd().format(newDate).toString();
+                });
+              },
+              initialDateTime: DateTime.now(),
+              mode: CupertinoDatePickerMode.date,
+            ),
+          );
+        });
   }
 
   void _googlePlaceSearch() async {
@@ -257,14 +265,15 @@ class _DateEntryState extends State<DateEntry> {
 
   Future<Null> addNewPlace(Prediction p, ScaffoldState scaffold) async {
     if (p != null) {
-      PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+      PlacesDetailsResponse detail =
+          await _places.getDetailsByPlaceId(p.placeId);
       if (detail.result != null) {
         setState(() {
-          places.add(createPlaceCard(detail.result),);
+          places.add(createPlaceCard(detail.result, context));
         });
-        scaffold.showSnackBar(
-            new SnackBar(content: new Text("${p.description} was successfully added to your trip."))
-        );
+        scaffold.showSnackBar(new SnackBar(
+            content: new Text(
+                "${p.description} was successfully added to your trip.")));
       }
     }
   }
@@ -356,7 +365,7 @@ class _DateEntryState extends State<DateEntry> {
   }
 }
 
-Widget createPlaceCard(PlaceDetails placeDetails) {
+Widget createPlaceCard(PlaceDetails placeDetails, BuildContext context) {
   var name = placeDetails.name;
   Widget image;
   if (placeDetails.photos != null) {
@@ -381,65 +390,68 @@ Widget createPlaceCard(PlaceDetails placeDetails) {
     image = Image.asset(asset, fit: BoxFit.cover,);
   }
 
-  return Padding(
-    padding: const EdgeInsets.only(left: 15, top: 6, bottom: 6),
-    child: Column(
-      children: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.all(
-            Radius.circular(15),
-          ),
-          child: Stack(
+  return InkWell(
+    onTap: () {
+      return Navigator.push(context, MaterialPageRoute(builder: (context) => PlaceView(placeDetails: placeDetails,)));
+    },
+    child: Container(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 15, top: 6, bottom: 6),
+          child: Column(
             children: <Widget>[
-              new GestureDetector(
-                child: Container(
-                  height: 100,
-                  width: 180,
-                  child: image,
+              ClipRRect(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(15),
                 ),
-                onLongPressEnd: (details) {
-                  print("jkdfnkdf");
-                  },
-              ),
-              Positioned(
-                  height: 100,
-                  width: 180,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.center,
-                            colors: [Colors.black, Colors.black.withOpacity(0)]
-                        ),
-                     ),
-                  ),
-              ),
-              Positioned(
-                left:10,
-                bottom: 10,
-                right: 10,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Stack(
                   children: <Widget>[
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                    Container(
+                        height: 100,
+                        width: 180,
+                        child: image,
+                    ),
+                    Positioned(
+                      height: 100,
+                      width: 180,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.center,
+                              colors: [Colors.black, Colors.black.withOpacity(0)]),
+                        ),
+                      ),
+                    ),
+
+                    Positioned(
+                      left: 10,
+                      bottom: 10,
+                      right: 10,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text(name,
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12),
-                            textAlign: TextAlign.center,
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Text(name,
+                                  style: TextStyle(fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 12),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
+                    )
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
-      ],
     ),
   );
 }
-
