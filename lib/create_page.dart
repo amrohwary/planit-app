@@ -1,150 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:intl/intl.dart';
-import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
-
-/*
-class CreatePage extends StatefulWidget {
-  @override
-  _CreatePageState createState() => _CreatePageState();
-}
-
-class _CreatePageState extends State<CreatePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Container(
-          margin: const EdgeInsets.only(left: 15, top: 15),
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Text(
-              "Workspace",
-              style: new TextStyle(
-                fontSize: 35,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.only(left: 15, top: 5),
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Text(
-              "Create a New Trip!",
-              style: new TextStyle(
-                fontSize: 20,
-//                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-        new NewTripForm(),
-      ],
-    );
-  }
-}
-
-class NewTripForm extends StatefulWidget {
-  @override
-  _NewTripFormState createState() => _NewTripFormState();
-}
-
-class _NewTripFormState extends State<NewTripForm> {
-  final _formKey = GlobalKey<FormState>();
-
-  DateTime _date = new DateTime.now();
-
-  Future<Null> _selectedDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
-        context: context,
-        initialDate: _date,
-        firstDate: new DateTime(2019),
-        lastDate: new DateTime(2100));
-    if (picked != null && picked != _date) {
-      print('Date selected: ${_date.toString()}');
-      setState(() {
-        _date = picked;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextFormField(
-              validator: (input) {
-                if (input.isEmpty) {
-                  return "Trip name is required";
-                }
-                return null;
-              },
-              decoration: new InputDecoration(
-                labelText: "Trip Name",
-                labelStyle: new TextStyle(color: Colors.black),
-              ),
-            ),
-            Row(children: [
-              Container(
-                child: Text(
-                  'Start Date: ',
-                  style: new TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              Container(
-                child: Text(
-                  '${new DateFormat.M().format(_date)}-${new DateFormat.d().format(_date)}-${new DateFormat.y().format(_date)}',
-                  style: new TextStyle(
-                    fontSize: 15,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              Expanded(child: SizedBox()),
-              Container(
-                child: RaisedButton(
-                  onPressed: () {
-                    _selectedDate(context);
-                  },
-                  child: Text('Select Date'),
-                ),
-              )
-            ]),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: RaisedButton(
-                onPressed: () {
-                  // Validate returns true if the form is valid, or false
-                  // otherwise.
-                  if (_formKey.currentState.validate()) {
-                    // If the form is valid, display a Snackbar.
-                    Scaffold.of(context).showSnackBar(
-                        SnackBar(content: Text('Processing Data')));
-                  }
-                },
-                child: Text('Submit'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-*/
+import 'api_keys.dart';
+import 'dart:async';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'common/appbar.dart';
+import 'package:uuid/uuid.dart';
+GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: googleMapsApiKey);
+var uuid = new Uuid();
 
 class CreatePage extends StatefulWidget {
   @override
@@ -156,45 +20,12 @@ class _CreatePageState extends State<CreatePage> {
   Widget build(BuildContext context) {
     return ListView(
       children: <Widget>[
-        Container(
-          margin: const EdgeInsets.only(left: 10, top: 15),
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Text(
-              "Workspace",
-              style: new TextStyle(
-                fontSize: 35,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.only(left: 15, top: 5, bottom: 15),
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Text(
-              "Create a New Trip!",
-              style: new TextStyle(
-                fontSize: 20,
-//                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60),
-          child: Divider(),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 18),
+          padding: const EdgeInsets.only(left: 18, top: 20),
           child: Container(
             padding: const EdgeInsets.only(right: 15),
             child: TextField(
-              scrollPhysics: NeverScrollableScrollPhysics(),
-              maxLength: 25,
+              maxLength: 30,
               style: new TextStyle(
                 fontSize: 25,
               ),
@@ -206,6 +37,24 @@ class _CreatePageState extends State<CreatePage> {
               ),
             ),
           ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(left: 3,),
+          height: 40,
+          child: PlacesAutocompleteField(
+            mode: Mode.overlay,
+            hint: "Where are you going?",
+            inputDecoration: new InputDecoration(
+              counterText: "",
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+            ),
+            apiKey: googleMapsApiKey,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 60),
+          child: Divider(),
         ),
         NewTripForm(),
       ],
@@ -219,28 +68,68 @@ class NewTripForm extends StatefulWidget {
 }
 
 class _NewTripFormState extends State<NewTripForm> {
-  List<DateEntry> dateEntries = [];
+  List dateEntries = [DateEntry()];
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: 5,
+      itemCount: dateEntries.length + 1,
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
-        print(context);
-        return new DateEntry();
+        if (index == dateEntries.length) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 15),
+            child: FlatButton(
+              color: Color(0xFF074A77),
+              onPressed: () {
+                setState( () {
+                  dateEntries.add(new DateEntry());
+                });
+              },
+              child: Text("Add a Day!",
+                style: TextStyle(color: Colors.white),),
+            ),
+          );
+        }
+        return Dismissible(
+          key: Key(dateEntries[index].id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: AlignmentDirectional.centerEnd,
+            color: Colors.red,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 60),
+              child: Icon(
+                Icons.delete,
+                size: 30,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          child: dateEntries[index],
+          onDismissed: (direction) {
+            setState(() {
+              dateEntries.removeAt(index);
+            });
+          },
+        );
       },
     );
   }
 }
 
 class DateEntry extends StatefulWidget {
+  String id = uuid.v1();
+  String get uniqueId {
+    return this.id;
+  }
   @override
   _DateEntryState createState() => _DateEntryState();
 }
 
 class _DateEntryState extends State<DateEntry> {
+  List places = [];
   String date = "Select Date";
 
   void _showDatePicker() {
@@ -260,14 +149,36 @@ class _DateEntryState extends State<DateEntry> {
     });
   }
 
-  void _googlePlaceSearch() {
-    print("dnfkdfn");
+  void _googlePlaceSearch() async {
+    Prediction p = await PlacesAutocomplete.show(
+        context: context,
+        apiKey: googleMapsApiKey,
+        mode: Mode.fullscreen,
+        language: "en-US",
+        components: [new Component(Component.country, "US")]
+    );
+    addNewPlace(p, homeScaffoldKey.currentState);
+  }
+
+  Future<Null> addNewPlace(Prediction p, ScaffoldState scaffold) async {
+    if (p != null) {
+      PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+      if (detail.result != null) {
+        print(detail.result.formattedAddress);
+        setState(() {
+          places.add(createPlaceCard(detail.result));
+        });
+        scaffold.showSnackBar(
+            new SnackBar(content: new Text("${p.description} was successfully added to your trip."))
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 15),
+      padding: const EdgeInsets.only(top: 6, bottom: 10),
       child: Column(
         children: <Widget>[
           Padding(
@@ -276,10 +187,10 @@ class _DateEntryState extends State<DateEntry> {
               children: <Widget>[
                 Container(
                   alignment: Alignment.topLeft,
-                  width: 270,
+                  width: 250,
                   height: 40,
                   child: TextField(
-                    maxLength: 25,
+                    maxLength: 30,
                     style: new TextStyle(
                       fontSize: 16,
                     ),
@@ -287,7 +198,7 @@ class _DateEntryState extends State<DateEntry> {
                       counterText: "",
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
-                      hintText: 'Subtitle (optional)',
+                      hintText: 'Daily Summary (optional)',
                     ),
                   ),
                 ),
@@ -307,11 +218,11 @@ class _DateEntryState extends State<DateEntry> {
             height: 112,
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: 20,
+              itemCount: places.length + 1,
               scrollDirection: Axis.horizontal,
               physics: BouncingScrollPhysics(),
               itemBuilder: (context, index) {
-                if (index == 19) {
+                if (index == places.length) {
                   return Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: IconButton(
@@ -321,7 +232,7 @@ class _DateEntryState extends State<DateEntry> {
                     ),
                   );
                 }
-                return createPlaceCard();
+                return places[index];
               },
             ),
           ),
@@ -331,7 +242,11 @@ class _DateEntryState extends State<DateEntry> {
   }
 }
 
-Widget createPlaceCard() {
+Widget createPlaceCard(PlaceDetails placeDetails) {
+  var name = placeDetails.name;
+  var location = placeDetails.addressComponents.elementAt(0).shortName;
+  print(location);
+
   return Padding(
     padding: const EdgeInsets.only(left: 15, top: 6, bottom: 6),
     child: Column(
@@ -342,10 +257,13 @@ Widget createPlaceCard() {
           ),
           child: Stack(
             children: <Widget>[
-              Container(
-                height: 100,
-                width: 180,
-                child: Image.asset("assets/images/newyork.jpg", fit: BoxFit.cover)
+              new GestureDetector(
+                child: Container(
+                  height: 100,
+                  width: 180,
+                  child: Image.asset("assets/images/newyork.jpg", fit: BoxFit.cover)
+                ),
+                onForcePressPeak: (details) {print("dfkd");},
               ),
               Positioned(
                   height: 100,
@@ -356,9 +274,9 @@ Widget createPlaceCard() {
                             begin: Alignment.bottomCenter,
                             end: Alignment.center,
                             colors: [Colors.black, Colors.black.withOpacity(0)]
-                        )
-                    ),
-                  )
+                        ),
+                     ),
+                  ),
               ),
               Positioned(
                 left:10,
@@ -369,7 +287,7 @@ Widget createPlaceCard() {
                   children: <Widget>[
                     Column(
                       children: <Widget>[
-                        Text("Place", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
+                        Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
                         Text("Manhattan, NY", style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white, fontSize: 12)),
                       ],
                     ),

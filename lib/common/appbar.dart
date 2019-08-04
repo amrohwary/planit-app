@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:planit/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../create_page.dart';
-
+final homeScaffoldKey = new GlobalKey<ScaffoldState>();
 class Home extends StatefulWidget {
   const Home({Key key, this.user}) : super(key: key);
   final FirebaseUser user;
@@ -17,6 +17,7 @@ class _HomeState extends State<Home> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        key: homeScaffoldKey,
         appBar: AppBar(
           backgroundColor: Color(0xff074A77),
           elevation: 0,
