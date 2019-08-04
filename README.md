@@ -1,16 +1,19 @@
-# planit
+# Planit
 
-Making moves easier since 2019!
+Plan trips in an easy, efficient, and organized way. Planning trips should never be a hassle!
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+<p align="center">
+  <img src="screenshots/authenticationScreenshot.png">
+  <img src="screenshots/profileScreenshot.png">
+</p>
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Future Plans
+<p align="center">
+  <h1 align="center">Share your unique adventures on Planit</h1>
+  <h3 align="center">Discover new things to do wherever you go!</h3>
+  <img src="screenshots/futurePlans.png">
+  <h3 align="center">Less debating, more planning! Collaborate with friends effortlessly</h3>
+</p>

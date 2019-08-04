@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
                 labelColor: Colors.white,
                 tabs: [
                   Tab(
-                    child: Image.asset("assets/images/logoTransparent.png",
+                    child: Image.asset("assets/images/solidNoNameSmall.png",
                       height: 150,
                     ),
                   ),
@@ -44,9 +44,6 @@ class _HomeState extends State<Home> {
               color: Colors.white,
               child: new Collections(user: widget.user),
             ),
-
-
-
             // Create Page
             Container(
                 color: Colors.white,
