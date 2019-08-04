@@ -17,9 +17,9 @@ class _SignUpState extends State<SignUp> {
     if(_formKey.currentState.validate()) {
       _formKey.currentState.save();
       try {
-        FirebaseUser user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password).then((data) {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password).then((data) {
           this.createUser(data);
-          Navigator.push(context, MaterialPageRoute(builder: (context) => Home(user: data)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(user: data)));
         }).catchError((e) {print(e.message);});
       } catch (e) {
         showDialog(context: context,
@@ -88,8 +88,8 @@ class _SignUpState extends State<SignUp> {
                     fontSize: 20,
                     color: Colors.white,)),
               new SizedBox(height: 30,),
-              /*new Image.asset("assets/images/solidLogoNoName.png",
-                height: 150,),*/
+              Image.asset("assets/images/solidNoNameSmall.png",
+                height: 200,),
               new SizedBox(height: 30,),
               new TextFormField(
                 validator: (input) {
@@ -149,7 +149,8 @@ class _SignUpState extends State<SignUp> {
                 cursorColor: Colors.white,
                 decoration: new InputDecoration(
                     labelText: "Password",
-                    labelStyle: new TextStyle(color: Colors.white)),),
+                    labelStyle: new TextStyle(color: Colors.white)),
+              ),
               new SizedBox(
                 height: 10,
               ),

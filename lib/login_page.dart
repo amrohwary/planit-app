@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
       _formKey.currentState.save();
       try{
         FirebaseUser user = await FirebaseAuth.instance.signInWithEmailAndPassword(email: _email, password: _password);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Home(user: user)));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(user: user)));
       }catch(e) {
         showDialog(context: context,
           builder: (BuildContext context) {
@@ -78,7 +78,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void signUp() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignUp()));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => new SignUp())
+    );
   }
 
 
@@ -94,10 +96,10 @@ class _LoginPageState extends State<LoginPage> {
             physics: ClampingScrollPhysics(),
             children: <Widget>[
               new SizedBox(height: 120,),
-//              Container(
-//                child: Image.asset("assets/images/solidBackgroundLogo.JPG",
-//                height: 250,),
-//              ),
+              Container(
+                child: Image.asset("assets/images/solidNameSmall.png",
+                height: 250,),
+              ),
               new SizedBox(height: 70,),
               new TextFormField(
                 validator: (input) {
