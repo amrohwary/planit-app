@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:planit/sign_up.dart';
-
 import 'common/appbar.dart';
 
 class LoginPage extends StatefulWidget {

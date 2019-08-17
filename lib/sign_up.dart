@@ -13,12 +13,13 @@ class _SignUpState extends State<SignUp> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _firstName, _lastName, _email, _password;
 
-  void signUp() async {
+  void signUp() {
     if(_formKey.currentState.validate()) {
       _formKey.currentState.save();
       try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password).then((data) {
-          this.createUser(data);
+          FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password).then((data) {
+          createUser(data);
+          Navigator.pop(context);
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(user: data)));
         }).catchError((e) {
           print(e.message);
@@ -52,14 +53,17 @@ class _SignUpState extends State<SignUp> {
     userData["lastName"] = _lastName;
 
     DocumentReference userFile = Firestore.instance.collection("users").document(user.uid);
+    DocumentReference firstCollection = Firestore.instance.collection("users").
+        document(user.uid).collection("collections").document("General Trips");
+    CollectionReference trips = firstCollection.collection("trips");;
+    Map<String, dynamic> collectionData = new Map<String, dynamic>();
+    collectionData["collectionName"] = "General Trips";
     Firestore.instance.runTransaction((transaction) async {
       await transaction.set(userFile, userData);
+      await transaction.set(firstCollection, collectionData);
+      await trips.document("nullTrip").setData({"tripName" : null});
     }).catchError((e) {
       print(e);
-    });
-
-    userFile.get().then((data) {
-      print("data: " + data.toString());
     });
   }
 

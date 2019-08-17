@@ -13,33 +13,62 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'place_view.dart';
 import 'dart:convert';
 import 'dart:io';
-import 'common/appbar.dart';
+import 'parse_dates.dart';
 
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: googleMapsApiKey);
 var uuid = new Uuid();
 
-
-class CreatePage extends StatefulWidget {
-  const CreatePage({Key key, this.user}) : super(key: key);
-  final FirebaseUser user;
+class EditPage extends StatefulWidget {
+  final DocumentSnapshot trip;
+  const EditPage({Key key, this.trip}) : super(key: key);
   @override
-  _CreatePageState createState() => _CreatePageState();
+  _EditPageState createState() => _EditPageState();
 }
 
-class _CreatePageState extends State<CreatePage> {
+class _EditPageState extends State<EditPage> {
   String title;
   String city;
   String cityId;
   String collection = "Select a Collection for this trip";
   int selectedCollectionIndex = 0;
-  List<DateEntry> dateEntries = [DateEntry()];
+  List<DateEntry> dateEntries = [];
 
-  /*void createWithCollection(String collection) {
-    tabController.animateTo(1);
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => initializeTrip());
+  }
+
+  void initializeTrip() async {
+    List<DateEntry> defaultDateEntries = [];
+    var dates = widget.trip["lines"];
+    for (var i = 0; i < dates.length; i++) {
+      List<PlaceCard> places = [];
+      for (var j = 0; j < dates[i]["places"].length; j++) {
+        var placeId = dates[i]["places"][j];
+        PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(placeId);
+        PlaceDetails placeDetails = detail.result;
+        places.add(new PlaceCard(placeId: placeId, placeDetails: placeDetails,));
+      }
+      defaultDateEntries.add(
+          new DateEntry(
+            date: dates[i]["date"],
+            description: dates[i]["dailySummary"],
+            places: places,
+            dateAsDateTime: parseDate(dates[i]["date"]),
+      ));
+    }
+    PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(widget.trip["location"]);
+    PlaceDetails placeDetails = detail.result;
+
     setState(() {
-      this.collection = collection;
+      dateEntries = defaultDateEntries;
+      title = widget.trip["tripName"];
+      cityId = widget.trip["location"];
+      city = placeDetails.name;
+      collection = widget.trip["collection"];
     });
-  }*/
+  }
 
   void showInvalidDialog(String message) {
     showDialog(
@@ -112,21 +141,22 @@ class _CreatePageState extends State<CreatePage> {
 
     Map<String, dynamic> trip = {"tripName" : title, "imagePath" : imagePath,
       "startDate" : startDate, "endDate" : endDate, "location" : cityId, "lines"
-          : lines, "collection" : collection, "region" : city};
+          : lines, "collection" : collection};
     if (valid) {
       await Firestore.instance.collection("users").document(user.uid)
           .collection("collections").document(collection).collection("trips").
-          document(title).setData(trip);
+      document(title).setData(trip);
     }
     else {
       print("invalid trip");
     }
-    tabController.animateTo(0);
+    Navigator.pop(context);
   }
 
   Future<List> _getCollectionsFromFirestore() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
     QuerySnapshot ref = await Firestore.instance.collection('users').document
-      (widget.user.uid).collection("collections").getDocuments();
+      (user.uid).collection("collections").getDocuments();
 
     List<String> collectionChoices = [];
     ref.documents.forEach((document) {
@@ -174,7 +204,11 @@ class _CreatePageState extends State<CreatePage> {
                 color: Color(0xFF01B2AA),
                 onPressed: () {
                   setState(() {
-                    dateEntries.add(new DateEntry());
+                    dateEntries.add(new DateEntry(
+                      description: "",
+                      date: "Select Date",
+                      places: [],
+                    ));
                   });
                 },
                 child: Text("Add a Day",
@@ -215,7 +249,7 @@ class _CreatePageState extends State<CreatePage> {
   void selectCollection() async {
     List<String> collectionChoices = await _getCollectionsFromFirestore();
     final FixedExtentScrollController scrollController =
-      FixedExtentScrollController(initialItem: selectedCollectionIndex);
+    FixedExtentScrollController(initialItem: selectedCollectionIndex);
     if (collectionChoices.length == 1) {
       setState(() {
         collection = collectionChoices[0];
@@ -246,98 +280,112 @@ class _CreatePageState extends State<CreatePage> {
   }
 
   void selectLocation(newLocation) async {
-      var url =  "https://maps.googleapis.com/maps/api/place/queryautocomplete/json?&key=${googleMapsApiKey}&input=${newLocation}";
-      var request = await new HttpClient().getUrl(Uri.parse(url));
-      var response = await request.close();
-      String predictions = "";
-      await for (String data in response.transform(Utf8Decoder())) {
-        predictions += data;
-      }
-      var placeId;
-      try {
-        Map parsedResponse = json.decode(predictions);
-        placeId = parsedResponse["predictions"].first["place_id"];
-      } catch (e) {
-        print("error!");
-        placeId = null;
-      }
-      setState(() {
-        this.cityId = placeId;
-        city = newLocation;
-      });
+    var url =  "https://maps.googleapis.com/maps/api/place/queryautocomplete/json?&key=${googleMapsApiKey}&input=${newLocation}";
+    var request = await new HttpClient().getUrl(Uri.parse(url));
+    var response = await request.close();
+    String predictions = "";
+    await for (String data in response.transform(Utf8Decoder())) {
+      predictions += data;
+    }
+    var placeId;
+    try {
+      Map parsedResponse = json.decode(predictions);
+      placeId = parsedResponse["predictions"].first["place_id"];
+    } catch (e) {
+      print("error!");
+      placeId = null;
+    }
+    setState(() {
+      this.cityId = placeId;
+      city = newLocation;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 16, top: 22),
-          child: Container(
-            padding: const EdgeInsets.only(right: 15),
-            child: TextField(
-              onChanged: (newTitle) {
-                setState(() {
-                  title = newTitle;
-                });
-              },
-              maxLength: 30,
-              style: new TextStyle(
-                fontSize: 25,
+    var titleController = new TextEditingController();
+    titleController.text = title;
+    var locationController = new TextEditingController();
+    locationController.text = city;
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        title: Text(widget.trip["tripName"] + " Summary"),
+        backgroundColor: Color(0xff074A77),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: 16, top: 22),
+            child: Container(
+              padding: const EdgeInsets.only(right: 15),
+              child: TextField(
+                controller: titleController,
+                readOnly: true,
+                enabled: false,
+                onChanged: (newTitle) {
+                  setState(() {
+                    title = newTitle;
+                  });
+                },
+                maxLength: 30,
+                style: new TextStyle(
+                  fontSize: 25,
+                ),
+                decoration: new InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: -2),
+                  counterText: "",
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
               ),
-              decoration: new InputDecoration(
-                contentPadding: EdgeInsets.symmetric(vertical: -2),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(
+              left: 0,
+            ),
+            height: 40,
+            child: PlacesAutocompleteField(
+              controller: locationController,
+              types: ["(regions)",],
+              mode: Mode.overlay,
+              hint: "Where are you going?",
+              onChanged: (newCity) {
+                selectLocation(newCity);
+              },
+              inputDecoration: new InputDecoration(
                 counterText: "",
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
-                hintText: 'Intriguing Title',
               ),
+              apiKey: googleMapsApiKey,
             ),
           ),
-        ),
-        Container(
-          margin: const EdgeInsets.only(
-            left: 0,
-          ),
-          height: 40,
-          child: PlacesAutocompleteField(
-            types: ["(regions)",],
-            mode: Mode.overlay,
-            hint: "Where are you going?",
-            onChanged: (newCity) {
-              selectLocation(newCity);
-            },
-            inputDecoration: new InputDecoration(
-              counterText: "",
-              border: InputBorder.none,
-              focusedBorder: InputBorder.none,
-            ),
-            apiKey: googleMapsApiKey,
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.only(left: 19, top: 5, bottom: 10),
-          child: Row(
-            children: <Widget>[
-              Text("Collection: "),
-              Container(
-                height: 20,
-                child: FlatButton(
-                  onPressed: () {
-                    selectCollection();
-                  },
-                  child: Text(collection),
+          Container(
+            margin: const EdgeInsets.only(left: 19, top: 5, bottom: 10),
+            child: Row(
+              children: <Widget>[
+                Text("Collection: "),
+                Container(
+                  height: 20,
+                  child: FlatButton(
+                    onPressed: () {
+                      selectCollection();
+                    },
+                    child: Text(collection),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60),
-          child: Divider(),
-        ),
-        buildListOfDates(),
-      ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 60),
+            child: Divider(),
+          ),
+          buildListOfDates(),
+        ],
+      ),
     );
   }
 }
@@ -346,15 +394,17 @@ class _CreatePageState extends State<CreatePage> {
 
 class DateEntry extends StatefulWidget {
   String id = uuid.v1();
-  List places = [];
+  List<PlaceCard> places = [];
   String date = "Select Date";
   String description = "";
-  var timeStamp;
+
+  DateEntry({Key key, this.places, this.date, this.description, this.dateAsDateTime}) : super(key: key);
   String get uniqueId {
     return this.id;
   }
   DateTime dateAsDateTime;
   DateTime lastDate = DateTime.now();
+
 
   @override
   _DateEntryState createState() => _DateEntryState();
@@ -371,7 +421,6 @@ class _DateEntryState extends State<DateEntry> {
               onDateTimeChanged: (DateTime newDate) {
                 setState(() {
                   widget.lastDate = newDate;
-                  widget.timeStamp = newDate.millisecondsSinceEpoch / 1000;
                   widget.dateAsDateTime = newDate;
                   widget.date = DateFormat.yMMMd().format(newDate).toString();
                 });
@@ -397,7 +446,7 @@ class _DateEntryState extends State<DateEntry> {
   Future<Null> addNewPlace(Prediction p, ScaffoldState scaffold) async {
     if (p != null) {
       PlacesDetailsResponse detail =
-          await _places.getDetailsByPlaceId(p.placeId);
+      await _places.getDetailsByPlaceId(p.placeId);
       if (detail.result != null) {
         setState(() {
           widget.places.add(new PlaceCard(placeDetails: detail.result, placeId: p.placeId));
@@ -408,6 +457,8 @@ class _DateEntryState extends State<DateEntry> {
 
   @override
   Widget build(BuildContext context) {
+    var dailySummaryController = new TextEditingController();
+    dailySummaryController.text = widget.description;
     return Padding(
       padding: const EdgeInsets.only(top: 6, bottom: 10),
       child: Column(
@@ -421,6 +472,7 @@ class _DateEntryState extends State<DateEntry> {
                   width: MediaQuery.of(context).size.width - 138,
                   height: 40,
                   child: TextField(
+                    controller: dailySummaryController,
                     onChanged: (newDescription) {
                       setState(() {
                         widget.description = newDescription;
